@@ -69,7 +69,7 @@ classdef FilenameFilters < mlchoosers.ImagingChoosersInterface
                 fns = fns{1}; end
         end
         function fns = isFlirted(fns0, varargin)
-            patt = mlchoosers.ImagingChoosersInterface.INTERIMAGE_TOKEN;             
+            patt = mlfsl.FslRegistry.INTERIMAGE_TOKEN;             
             fns = mlchoosers.FilenameFilters.isSomething(patt, fns0, varargin{:});
         end
         function fns = isMcf(fns0, varargin)
@@ -93,7 +93,7 @@ classdef FilenameFilters < mlchoosers.ImagingChoosersInterface
             fns0 = ensureCell(fns0);
             if (~exist('not','var'))
                 not = false; end
-            [~,fps] = cellfun(@(x) gzfileparts(x), fns0, 'UniformOutput', false);
+            [~,fps] = cellfun(@(x) myfileparts(x), fns0, 'UniformOutput', false);
             fps     = FilenameFilters.isSomethingStartingWith( ...
                       pattlist, fps, not);
         end
@@ -202,7 +202,7 @@ classdef FilenameFilters < mlchoosers.ImagingChoosersInterface
             % fns = ensureMatchedFileFormat(fns, fns0);
         end
         function fns = notIsFlirted(fns0)
-            patt = mlchoosers.ImagingChoosersInterface.INTERIMAGE_TOKEN;            
+            patt = mlfsl.FslRegistry.INTERIMAGE_TOKEN;            
             fns = mlchoosers.FilenameFilters.notIsSomething(patt, fns0);
         end
         function fns = notIsMcf(fns0)

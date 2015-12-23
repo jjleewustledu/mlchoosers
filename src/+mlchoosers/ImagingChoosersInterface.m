@@ -1,5 +1,6 @@
 classdef ImagingChoosersInterface 
-	%% IMAGINGCHOOSERSINTERFACE is the abstract interface for ImagingChoosers, ImageFilters, FilenameFilters
+	%% IMAGINGCHOOSERSINTERFACE is the abstract interface for ImagingChoosers, ImageFilters, FilenameFilters.
+    
 	%  $Revision$
  	%  was created $Date$
  	%  by $Author$, 
@@ -10,8 +11,6 @@ classdef ImagingChoosersInterface
  	%  N.B. classdef (Sealed, Hidden, InferiorClasses = {?class1,?class2}, ConstructOnLoad)
 
     properties (Constant)
-        IMAGING_SUFFIXES = {'.nii.gz' '.nii' '.hdr'};
-        INTERIMAGE_TOKEN =  '_on_';
         SUPPORTED_IMAGE_TYPES = ...
             [numeric_types abstract_image_types ...
             {         'ImagingComponent'         'ImagingComposite'         'ImagingSeries'         'ImagingContext'...
@@ -27,9 +26,6 @@ classdef ImagingChoosersInterface
 	methods (Abstract, Static)
         obj = brightest(obj)
         obj = highestSeriesNumber(obj)
-        %obj = isAtlas(obj)
-        %obj = isBetted(obj)
-        %obj = isFlirted(obj)
         obj = isMcf(obj)
         obj = isMr(obj)
         obj = isPet(obj)
@@ -40,15 +36,11 @@ classdef ImagingChoosersInterface
         obj = minimum(obj)
         obj = mostEntropy(obj)
         obj = mostPixels(obj)
-        %obj = notIsAtlas(obj)
-        %obj = notIsBetted(obj)
-        %obj = notIsFlirted(obj)
         obj = notIsMcf(obj)
         obj = notIsMr(obj)
         obj = notIsPet(obj)
         obj = smallestVoxels(obj)
         obj = timeDependent(obj)
-        %obj = timeIndependent(obj)
         obj = not(obj)
     end 
 

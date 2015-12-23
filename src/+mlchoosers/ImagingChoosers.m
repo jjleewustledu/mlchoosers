@@ -1,5 +1,6 @@
 classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
 	%% IMAGINGCHOOSERS 
+    
 	%  $Revision: 2466 $
  	%  was created $Date: 2013-08-10 21:27:30 -0500 (Sat, 10 Aug 2013) $
  	%  by $Author: jjlee $, 
@@ -83,7 +84,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             
             p = inputParser;
             addRequired(p, 'name', @ischar);
-            addOptional(p, 'sep', mlchoosers.ImagingChoosersInterface.INTERIMAGE_TOKEN, @ischar);
+            addOptional(p, 'sep', mlfsl.FslRegistry.INTERIMAGE_TOKEN, @ischar);
             parse(p, name, varargin{:});
             
             [~,fp] = filepartsx(p.Results.name, mlfourd.NIfTIInterface.FILETYPE_EXT);
@@ -133,7 +134,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             try
                 import mlchoosers.*;
                 namstr  = ImagingChoosers.coregNameStruct(varargin{:});
-                obj     = fullfilename(namstr.path, [namstr.pre ImagingChoosers.INTERIMAGE_TOKEN namstr.post]);
+                obj     = fullfilename(namstr.path, [namstr.pre mlfsl.FslRegistry.INTERIMAGE_TOKEN namstr.post]);
                 lastArg = varargin{length(varargin)};
                 obj     = imcast(obj, class(lastArg));
             catch ME
@@ -597,7 +598,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             %  excluding filename suffixes .mat/.nii.gz; default is TOKEN
             
             str = fileprefix(fileprefix(str, mlfsl.FlirtVisitor.XFM_SUFFIX));
-            if (~exist('tok', 'var')); tok = mlchoosers.ImagingChoosersInterface.INTERIMAGE_TOKEN; end
+            if (~exist('tok', 'var')); tok = mlfsl.FslRegistry.INTERIMAGE_TOKEN; end
             locs = strfind(str, tok);
             if (~isempty(locs))
                 str = str(1:locs(1)-1);
@@ -608,7 +609,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             %  excluding filename suffixes .mat/.nii.gz; default is TOKEN
             
             str = fileprefix(fileprefix(str, mlfsl.FlirtVisitor.XFM_SUFFIX));
-            if (~exist('tok', 'var')); tok = mlchoosers.ImagingChoosersInterface.INTERIMAGE_TOKEN; end
+            if (~exist('tok', 'var')); tok = mlfsl.FslRegistry.INTERIMAGE_TOKEN; end
             locs = strfind(str, tok);
             if (~isempty(locs))
                 str = str(locs(end)+length(tok):end);
