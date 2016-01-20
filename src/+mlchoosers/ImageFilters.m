@@ -72,7 +72,7 @@ classdef ImageFilters < mlchoosers.ImagingChoosersInterface
         end
         function imcmp = mostPixels(imcmp)
             try
-                imcmp = mlchoosers.ImageFilters.maximum('prodSize', imcmp);
+                imcmp = mlchoosers.ImageFilters.maximum('numel', imcmp);
             catch ME
                 handexcept(ME);
             end
@@ -152,7 +152,7 @@ classdef ImageFilters < mlchoosers.ImagingChoosersInterface
         function imcmp = imagingComponentFilter(fhandle, imcmp0)
             import mlfourd.* mlchoosers.*;
             if (length(imcmp0) < 2)
-                obj = ImagingSeries.createFromINIfTI(imcmp0.cachedNext);
+                obj = ImagingSeries.createFromINIfTI(imcmp0.cached);
             else
                 cal = mlfourd.ImagingArrayList;
                 for f = 1:length(imcmp0)

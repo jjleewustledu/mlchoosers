@@ -51,14 +51,14 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             fns = ensureCell(mlchoosers.ImagingChoosers.createFqFilename(p));
             if (~p.Results.fullyQualified)
                 for f = 1:length(fns)
-                    [~,fp,e] = filepartsx(fns{f}, mlfourd.NIfTIInterface.FILETYPE_EXT);
+                    [~,fp,e] = filepartsx(fns{f}, mlfourd.INIfTI.FILETYPE_EXT);
                     fns{f} = [fp e];
                 end
             end
         end
         function fqfps = createFqFileprefix(p)
             fqfps = fileprefixes( ...
-                    mlchoosers.ImagingChoosers.createFqFilename(p), mlfourd.NIfTIInterface.FILETYPE_EXT, true);
+                    mlchoosers.ImagingChoosers.createFqFilename(p), mlfourd.INIfTI.FILETYPE_EXT, true);
         end
         function fqfns = createFqFilename(p)
             import mlchoosers.*;
@@ -73,7 +73,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
         function nii   = createNIfTI(p)
             imser = mlchoosers.ImagingChoosers.createImagingComponent(p);
             assert(1 == imser.length);
-            nii = imser.cachedNext;
+            nii = imser.cached;
         end
           
         function prts  = splitFilename(name, varargin)
@@ -87,7 +87,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             addOptional(p, 'sep', mlfsl.FslRegistry.INTERIMAGE_TOKEN, @ischar);
             parse(p, name, varargin{:});
             
-            [~,fp] = filepartsx(p.Results.name, mlfourd.NIfTIInterface.FILETYPE_EXT);
+            [~,fp] = filepartsx(p.Results.name, mlfourd.INIfTI.FILETYPE_EXT);
             if (isempty(fp))
                 prts = {};  return; end
             sepsFound = strfind(fp, p.Results.sep);
@@ -107,7 +107,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             
         end % static splitFilename      
         function fn    = ensureFilenameSuffix(fn0)
-            if (lstrfind(fn0, mlfourd.NIfTIInterface.FILETYPE_EXT))
+            if (lstrfind(fn0, mlfourd.INIfTI.FILETYPE_EXT))
                 fn = fn0;
             else
                 fn = '';
@@ -117,7 +117,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             fns  = {}; g = 1;
             fns0 = ensureCell(fns0);
             for f = 1:length(fns0)
-                if (lstrfind(fns0{f}, mlfourd.NIfTIInterface.FILETYPE_EXT))
+                if (lstrfind(fns0{f}, mlfourd.INIfTI.FILETYPE_EXT))
                     fns{g} = fns0{f}; %#ok<AGROW>
                     g = g + 1;
                 end
@@ -142,7 +142,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             end
         end
         function nameStruct = coregNameStruct(varargin)
-            %% COREGNAME accepts char, cell, CellArrayList, struct, NIfTIInterface and
+            %% COREGNAME accepts char, cell, CellArrayList, struct, INIfTI and
             %  returns a struct-array with string fields path, pre, post;
             %  dispatches to *2coregNameStruct methods that update path, pre, post so that 
             %  varargin{1} updates path, pre and varargin{N}, N = length(varargin), updates post.
@@ -162,7 +162,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
                     case 'struct'
                         nameStruct = ImagingChoosers.struct2coregNameStruct(nameStruct, varargin{v});
                     otherwise
-                        if (isa(varargin{v}, 'mlfourd.NIfTIInterface'))
+                        if (isa(varargin{v}, 'mlfourd.INIfTI'))
                             nameStruct = ImagingChoosers.abstractImage2coregNameStruct(nameStruct, varargin{v});
                         else
                             error('mlchoosers:unsupportedTypeclass', ...
@@ -378,7 +378,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             prefix = this.dropUnderscore(prefix);
             try
                 fname        = this.filenameOnFslPath(fname);
-                defaultFname = this.filenameOnFslPath([prefix mlchoosers.ImagingChoosers.DEFAULT_SUFF mlfourd.NIfTIInterface.FILETYPE_EXT]);
+                defaultFname = this.filenameOnFslPath([prefix mlchoosers.ImagingChoosers.DEFAULT_SUFF mlfourd.INIfTI.FILETYPE_EXT]);
                 if (~strcmp(fname, defaultFname))
                     movefile(fname, defaultFname, 'f'); end
                 logger = mlpipeline.Logger(defaultFname);
@@ -391,28 +391,28 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
         
         function p     = theInputParser(this, varargin)
             p = inputParser;
-            addParamValue(p, 'returnType',         this.inputParserDefaults.returnType, @this.validReturnType);
-            addParamValue(p, 'fileprefixPattern',  this.inputParserDefaults.fileprefixPattern, @ischar);
-            addParamValue(p, 'path',               this.inputParserDefaults.path, @this.validPath); % defers to any path in fileprefixPattern
-            addParamValue(p, 'ensureExists',       this.inputParserDefaults.ensureExists);
-            addParamValue(p, 'fullyQualified',     this.inputParserDefaults.fullyQualified);
-            addParamValue(p, 'meanvol',            this.inputParserDefaults.meanvol);
-            addParamValue(p, 'averaged',           this.inputParserDefaults.averaged, @this.validAveraging);            
-            addParamValue(p, 'blocked',            this.inputParserDefaults.blocked, @isnumeric);
-            addParamValue(p, 'blurred',            this.inputParserDefaults.blurred, @isnumeric);            
-            addParamValue(p, 'modality',           this.inputParserDefaults.modality, @this.validModality);
-            addParamValue(p, 'brightest',          this.inputParserDefaults.brightest);
-            addParamValue(p, 'lowestSeriesNumber', this.inputParserDefaults.lowestSeriesNumber);
-            addParamValue(p, 'highestSeriesNumber',this.inputParserDefaults.highestSeriesNumber);
-            addParamValue(p, 'mostEntropy',        this.inputParserDefaults.mostEntropy);
-            addParamValue(p, 'leastEntropy',       this.inputParserDefaults.leastEntropy);
-            addParamValue(p, 'mostPixels',         this.inputParserDefaults.mostPixels);
-            addParamValue(p, 'smallestVoxels',     this.inputParserDefaults.smallestVoxels);
-            addParamValue(p, 'longestDuration',    this.inputParserDefaults.longestDuration); 
-            addParamValue(p, 'timeDependent',      this.inputParserDefaults.timeDependent); 
-            addParamValue(p, 'isMcf',              this.inputParserDefaults.isMcf);
-            addParamValue(p, 'isFlirted',          this.inputParserDefaults.isFlirted, @ischar);
-            addParamValue(p, 'isBetted',           this.inputParserDefaults.isBetted);
+            addParameter(p, 'returnType',         this.inputParserDefaults.returnType, @this.validReturnType);
+            addParameter(p, 'fileprefixPattern',  this.inputParserDefaults.fileprefixPattern, @ischar);
+            addParameter(p, 'path',               this.inputParserDefaults.path, @this.validPath); % defers to any path in fileprefixPattern
+            addParameter(p, 'ensureExists',       this.inputParserDefaults.ensureExists);
+            addParameter(p, 'fullyQualified',     this.inputParserDefaults.fullyQualified);
+            addParameter(p, 'meanvol',            this.inputParserDefaults.meanvol);
+            addParameter(p, 'averaged',           this.inputParserDefaults.averaged, @this.validAveraging);            
+            addParameter(p, 'blocked',            this.inputParserDefaults.blocked, @isnumeric);
+            addParameter(p, 'blurred',            this.inputParserDefaults.blurred, @isnumeric);            
+            addParameter(p, 'modality',           this.inputParserDefaults.modality, @this.validModality);
+            addParameter(p, 'brightest',          this.inputParserDefaults.brightest);
+            addParameter(p, 'lowestSeriesNumber', this.inputParserDefaults.lowestSeriesNumber);
+            addParameter(p, 'highestSeriesNumber',this.inputParserDefaults.highestSeriesNumber);
+            addParameter(p, 'mostEntropy',        this.inputParserDefaults.mostEntropy);
+            addParameter(p, 'leastEntropy',       this.inputParserDefaults.leastEntropy);
+            addParameter(p, 'mostPixels',         this.inputParserDefaults.mostPixels);
+            addParameter(p, 'smallestVoxels',     this.inputParserDefaults.smallestVoxels);
+            addParameter(p, 'longestDuration',    this.inputParserDefaults.longestDuration); 
+            addParameter(p, 'timeDependent',      this.inputParserDefaults.timeDependent); 
+            addParameter(p, 'isMcf',              this.inputParserDefaults.isMcf);
+            addParameter(p, 'isFlirted',          this.inputParserDefaults.isFlirted, @ischar);
+            addParameter(p, 'isBetted',           this.inputParserDefaults.isBetted);
             parse(p, varargin{:});
         end  
         
@@ -465,7 +465,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
         end
         function [pth,fp,e] = decoratedFileparts(p)
             import mlfsl.*;
-            [pth,fp,e] = filepartsx(p.Results.fileprefixPattern, mlfourd.NIfTIInterface.FILETYPE_EXT);
+            [pth,fp,e] = filepartsx(p.Results.fileprefixPattern, mlfourd.INIfTI.FILETYPE_EXT);
             if (isempty(pth))
                 pth = p.Results.path;
             end
@@ -494,7 +494,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
                 fp = BetBuilder.bettedFilename(fp);
             end    
             if (isempty(e))
-                e = mlfourd.NIfTIInterface.FILETYPE_EXT;
+                e = mlfourd.INIfTI.FILETYPE_EXT;
             end
         end   
         function rt = validReturnType(val)
@@ -555,7 +555,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             %                                                     ^ string, name of method from ImageFilters
                        
             if (isempty(obj) || 1 == length(obj)); return; end
-            if (isa(obj, 'mlfourd.NIfTIInterface')) % KLUDGE
+            if (isa(obj, 'mlfourd.INIfTI')) % KLUDGE
                 obj = mlchoosers.ImagingChoosers.applyNiftiFilters(obj, varargin{:});
                 return
             end
@@ -571,7 +571,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             if (isempty(obj) || 1 == length(obj)); return; end
             imser = mlfourd.ImagingSeries.load(obj);
             imser = mlchoosers.ImagingChoosers.applyImageFilters(imser, varargin{:});
-            obj   = imser.cachedNext;
+            obj   = imser.cached;
         end
         function nameStruct = coregFirstLastNameStructs(nameStruct, obj0, objf)
             import mlchoosers.*;
@@ -586,7 +586,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
         function nameStruct = char2coregNameStruct(nameStruct, strng)
             import mlchoosers.*;
             [pth,strng] = filepartsx( ...
-                          imcast(strng, 'fqfilename'), mlfourd.NIfTIInterface.FILETYPE_EXT);
+                          imcast(strng, 'fqfilename'), mlfourd.INIfTI.FILETYPE_EXT);
             if (isempty(nameStruct.path))
                 nameStruct.path = pth; end
             if (isempty(nameStruct.pre))
@@ -709,7 +709,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             try
                 fqfn = filename(mlfourd.NIfTI.load( ...
                       this.filenameOnFslPath( ...
-                      [fpstem this.DEFAULT_SUFF mlfourd.NIfTIInterface.FILETYPE_EXT])));
+                      [fpstem this.DEFAULT_SUFF mlfourd.INIfTI.FILETYPE_EXT])));
             catch %#ok<CTCH>
                 fqfn = [];
             end

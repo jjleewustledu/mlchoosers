@@ -13,7 +13,7 @@ classdef FilenameFilters < mlchoosers.ImagingChoosersInterface
         end
         function idx = getSeriesNumber(fname)
             assert(ischar(fname), 'FilenameFilters.getSeriesNumber.fname->%s', class(fname));
-            [~,fname] = filepartsx(fname, mlfourd.NIfTIInterface.FILETYPE_EXT);
+            [~,fname] = filepartsx(fname, mlfourd.INIfTI.FILETYPE_EXT);
             [~,trial] = strtok(fname, '_');
             idx       = NaN;
             try
