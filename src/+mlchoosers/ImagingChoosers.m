@@ -515,7 +515,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             rt = lstrfind(lower(val), VALID);
         end     
         function rt = validPath(val)
-            ensureFolderExists(val);
+            ensuredir(val);
             rt = true;
         end   
         function filtList = globParsed(p)
