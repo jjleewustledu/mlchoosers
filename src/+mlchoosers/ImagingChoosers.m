@@ -51,14 +51,14 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             fns = ensureCell(mlchoosers.ImagingChoosers.createFqFilename(p));
             if (~p.Results.fullyQualified)
                 for f = 1:length(fns)
-                    [~,fp,e] = filepartsx(fns{f}, mlfourd.INIfTI.FILETYPE_EXT);
+                    [~,fp,e] = filepartsx(fns{f}, mlfourd.NIfTId.FILETYPE_EXT);
                     fns{f} = [fp e];
                 end
             end
         end
         function fqfps = createFqFileprefix(p)
             fqfps = fileprefixes( ...
-                    mlchoosers.ImagingChoosers.createFqFilename(p), mlfourd.INIfTI.FILETYPE_EXT, true);
+                    mlchoosers.ImagingChoosers.createFqFilename(p), mlfourd.NIfTId.FILETYPE_EXT, true);
         end
         function fqfns = createFqFilename(p)
             import mlchoosers.*;
@@ -87,7 +87,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             addOptional(p, 'sep', mlfsl.FslRegistry.INTERIMAGE_TOKEN, @ischar);
             parse(p, name, varargin{:});
             
-            [~,fp] = filepartsx(p.Results.name, mlfourd.INIfTI.FILETYPE_EXT);
+            [~,fp] = filepartsx(p.Results.name, mlfourd.NIfTId.FILETYPE_EXT);
             if (isempty(fp))
                 prts = {};  return; end
             sepsFound = strfind(fp, p.Results.sep);
@@ -107,7 +107,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             
         end % static splitFilename      
         function fn    = ensureFilenameSuffix(fn0)
-            if (lstrfind(fn0, mlfourd.INIfTI.FILETYPE_EXT))
+            if (lstrfind(fn0, mlfourd.NIfTId.FILETYPE_EXT))
                 fn = fn0;
             else
                 fn = '';
@@ -117,7 +117,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             fns  = {}; g = 1;
             fns0 = ensureCell(fns0);
             for f = 1:length(fns0)
-                if (lstrfind(fns0{f}, mlfourd.INIfTI.FILETYPE_EXT))
+                if (lstrfind(fns0{f}, mlfourd.NIfTId.FILETYPE_EXT))
                     fns{g} = fns0{f}; %#ok<AGROW>
                     g = g + 1;
                 end
@@ -378,7 +378,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             prefix = this.dropUnderscore(prefix);
             try
                 fname        = this.filenameOnFslPath(fname);
-                defaultFname = this.filenameOnFslPath([prefix mlchoosers.ImagingChoosers.DEFAULT_SUFF mlfourd.INIfTI.FILETYPE_EXT]);
+                defaultFname = this.filenameOnFslPath([prefix mlchoosers.ImagingChoosers.DEFAULT_SUFF mlfourd.NIfTId.FILETYPE_EXT]);
                 if (~strcmp(fname, defaultFname))
                     movefile(fname, defaultFname, 'f'); end
                 logger = mlpipeline.Logger(defaultFname);
@@ -465,7 +465,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
         end
         function [pth,fp,e] = decoratedFileparts(p)
             import mlfsl.*;
-            [pth,fp,e] = filepartsx(p.Results.fileprefixPattern, mlfourd.INIfTI.FILETYPE_EXT);
+            [pth,fp,e] = filepartsx(p.Results.fileprefixPattern, mlfourd.NIfTId.FILETYPE_EXT);
             if (isempty(pth))
                 pth = p.Results.path;
             end
@@ -494,7 +494,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
                 fp = BetBuilder.bettedFilename(fp);
             end    
             if (isempty(e))
-                e = mlfourd.INIfTI.FILETYPE_EXT;
+                e = mlfourd.NIfTId.FILETYPE_EXT;
             end
         end   
         function rt = validReturnType(val)
@@ -586,7 +586,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
         function nameStruct = char2coregNameStruct(nameStruct, strng)
             import mlchoosers.*;
             [pth,strng] = filepartsx( ...
-                          imcast(strng, 'fqfilename'), mlfourd.INIfTI.FILETYPE_EXT);
+                          imcast(strng, 'fqfilename'), mlfourd.NIfTId.FILETYPE_EXT);
             if (isempty(nameStruct.path))
                 nameStruct.path = pth; end
             if (isempty(nameStruct.pre))
@@ -709,7 +709,7 @@ classdef ImagingChoosers < mlchoosers.ImagingChoosersInterface
             try
                 fqfn = filename(mlfourd.NIfTI.load( ...
                       this.filenameOnFslPath( ...
-                      [fpstem this.DEFAULT_SUFF mlfourd.INIfTI.FILETYPE_EXT])));
+                      [fpstem this.DEFAULT_SUFF mlfourd.NIfTId.FILETYPE_EXT])));
             catch %#ok<CTCH>
                 fqfn = [];
             end
